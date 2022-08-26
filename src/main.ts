@@ -1,4 +1,4 @@
-import { createRandomPbmImage } from "./pbm.service";
-import path from 'path';
+import { PPM, PGM, createRandomImage } from "./randomImage.service";
 
-createRandomPbmImage(1000, 1000, path.join(__dirname, "..", "/bin"), "image_1000_1000");
+createRandomImage(PPM, 100, 100, {start: 0, end: 255}, "ppm_100_100");
+createRandomImage(PGM, 100, 100, {start: 0, end: 255}, "pgm_100_100");
