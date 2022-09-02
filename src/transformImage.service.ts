@@ -27,7 +27,7 @@ export const resize = (width: number, height: number) => {
   image.pixels.forEach((x) => {
     fs.appendFileSync(
       path.join(__dirname, "..", "/bin/in/out.pgm"),
-      x.toString() + "\n"
+      x.toString().replace(/,/g, " ") + "\n"
     );
   });
 
@@ -47,12 +47,12 @@ export const resize = (width: number, height: number) => {
     }
   }
 
-  result.forEach((x) => {
-    fs.appendFileSync(
-      path.join(__dirname, "..", "/bin/in/out.pgm"),
-      x.toString().replace(/,/g, " ") + "\n"
-    );
-  });
+  // result.forEach((x) => {
+  //   fs.appendFileSync(
+  //     path.join(__dirname, "..", "/bin/in/out.pgm"),
+  //     x.toString().replace(/,/g, " ") + "\n"
+  //   );
+  // });
   return result;
 };
 
