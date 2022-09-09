@@ -1,49 +1,40 @@
 import fs from "fs";
 import path from "path";
 
-// const parseImage = (dir: string) => {
-//   const image = fs.readFileSync(dir).toString();
-//   const content = image.split("\n");
-//   const pixels = [];
-//   const width = parseInt(content[1].split(" ")[0]);
-//   const height = parseInt(content[1].split(" ")[1]);
-//   for (let i = 2; i < content.length; i++) {
-//     for (let x = 0; x < content[i].length; x++) {
-//       pixels[i - 2 + x] = parseInt(content[i]);
-//     }
-//   }
-//   const chunkSize = width;
-//   const result = [];
-//   for (let i = 0; i < pixels.length; i += chunkSize) {
-//     const chunk = pixels.slice(i, i + chunkSize);
-//     result.push(chunk);
-//   }
-//   return { width, height, pixels: result };
-// };
-
-const parseImage = (dir: string) => {
+const parseImage = (dir: string, rgb: boolean = false) => {
   const image = fs.readFileSync(dir).toString();
   const content = image.split("\n");
+  const pixels = [];
   const width = parseInt(content[1].split(" ")[0]);
   const height = parseInt(content[1].split(" ")[1]);
-
-  const result: number[][] = [];
-
-  for (let i = 0; i < width; i++) {
-    result[i] = [];
-  }
-
-  for (let i = 2; i < content.length; i++) {
-    if (content[i].length <= 1) {
-      continue;
-    }
+  for (let i = 3; i < content.length; i++) {
     const cols = content[i].split(" ");
     for (let x = 0; x < cols.length; x++) {
-      result[i - 2][x] = parseInt(cols[x]);
+      if (isNaN(parseInt(cols[x]))) {
+        continue;
+      }
+      pixels.push(parseInt(cols[x]));
     }
+  }
+  let chunkSize = height;
+  if (rgb) {
+    chunkSize = height * 3;  
+  }
+  const result = [];
+  for (let i = 0; i < pixels.length; i += chunkSize) {
+    const chunk = pixels.slice(i, i + chunkSize);
+    result.push(chunk);
   }
   return { width, height, pixels: result };
 };
+
+const initMatrix = (row: number): number[][] => {
+  const result: number[][] = [];
+  for (let i = 0; i < row; i++) {
+    result[i] = [];
+  }
+  return result;
+}
 
 export const resize = (width: number, height: number) => {
   const image = parseImage(
@@ -53,10 +44,7 @@ export const resize = (width: number, height: number) => {
   const sx = image.width / width;
   const sy = image.height / height;
 
-  const result: number[][] = [];
-  for (let i = 0; i < width; i++) {
-    result[i] = [];
-  }
+  const result = initMatrix(width);
 
   for (let x = 0; x < width; x++) {
     for (let y = 0; y < height; y++) {
@@ -83,11 +71,6 @@ export const transformByThreshold = (
   const image = parseImage(
     path.join(__dirname, "..", "/bin/in/Entrada_EscalaCinza.pgm")
   );
-  const result: number[][] = [];
-  for (let i = 0; i < image.width; i++) {
-    result[i] = [];
-  }
-
   const header = `${type}\n${image.width} ${image.height}\n\n`;
   let outImageString = "";
   outImageString = outImageString.concat(header);
@@ -101,3 +84,28 @@ export const transformByThreshold = (
   }
   fs.writeFileSync(outDir, outImageString);
 };
+
+export const transformRgbToGrayscale = (dir: string, outDir: string) => {
+  const image = parseImage(
+    path.join(__dirname, "..", "/bin/in/Fig4.ppm"), true
+  );
+  const result = initMatrix(image.width);
+  for (let i = 0; i < image.width; i++) {
+    for (let x = 0; x < image.height * 3; x += 3) {
+      const sumPixels = image.pixels[i][x] + image.pixels[i][x + 1] + image.pixels[i][x + 2];
+      result[i][x/3] = Math.floor(sumPixels/3);
+    }
+  }
+  const header = `P2\n${image.width} ${image.height}\n\n`;
+  let outImageString = "";
+  outImageString = outImageString.concat(header);
+  for (let i = 0; i < image.width; i++) {
+    for (let x = 0; x < image.height; x++) {
+      outImageString = outImageString.concat(
+        result[i][x].toString() + " "
+      );
+    }
+    outImageString = outImageString.concat("\n");
+  }
+  fs.writeFileSync(outDir, outImageString);
+}

@@ -1,6 +1,9 @@
-import { transformByThreshold } from "./transformImage.service";
+import { transformRgbToGrayscale, transformByThreshold } from "./transformImage.service";
 import path from "path";
 
+const basePath = path.join(__dirname, '..', 'bin')
+
+// Atividade #5
 // Limiar 128 | 0 & 1
 transformByThreshold(
   (pixel: number) => {
@@ -10,10 +13,11 @@ transformByThreshold(
     }
     return 1;
   },
-  path.join(__dirname, "..", "bin/transform_entrada_escala_de_cinza_pbm.pbm"),
+  path.join(basePath, "img_escala_cinza_binario_limiar.pbm"),
   "P1"
 );
 
+// Atividade #6
 // Limiar 128 | 0 & 255
 transformByThreshold(
   (pixel: number) => {
@@ -23,6 +27,9 @@ transformByThreshold(
     }
     return 255;
   },
-  path.join(__dirname, "..", "bin/transform_entrada_escala_de_cinza_pgm.pgm"),
+  path.join(basePath, "img_escala_cinza_limiar.pgm"),
   "P2"
 );
+
+// Atividade #7
+transformRgbToGrayscale("", path.join(basePath, "img_rgb_escala_de_cinza.pgm"));
