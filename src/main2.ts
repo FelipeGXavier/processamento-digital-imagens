@@ -1,4 +1,4 @@
-import { transformRgbToGrayscale, transformByThreshold } from "./transformImage.service";
+import { transformRgbToGrayscale, transformByThreshold, transformRgbToAverageChannels } from "./transformImage.service";
 import path from "path";
 
 const basePath = path.join(__dirname, '..', 'bin')
@@ -32,4 +32,7 @@ transformByThreshold(
 );
 
 // Atividade #7
-transformRgbToGrayscale("", path.join(basePath, "img_rgb_escala_de_cinza.pgm"));
+transformRgbToGrayscale(path.join(basePath, "img_rgb_escala_de_cinza.pgm"));
+
+// Atividadee #8
+transformRgbToAverageChannels(path.join(basePath, "img_rgb_media_canais.pgm"));
