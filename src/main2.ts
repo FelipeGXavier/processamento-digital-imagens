@@ -1,7 +1,12 @@
-import { transformRgbToGrayscale, transformByThreshold, transformRgbToAverageChannels } from "./transformImage.service";
+import {
+  transformRgbToGrayscale,
+  transformByThreshold,
+  transformRgbToAverageChannels,
+  transformSeparateRgbChannel
+} from "./transformImage.service";
 import path from "path";
 
-const basePath = path.join(__dirname, '..', 'bin')
+const basePath = path.join(__dirname, "..", "bin");
 
 // Atividade #5
 // Limiar 128 | 0 & 1
@@ -34,5 +39,21 @@ transformByThreshold(
 // Atividade #7
 transformRgbToGrayscale(path.join(basePath, "img_rgb_escala_de_cinza.pgm"));
 
-// Atividadee #8
-transformRgbToAverageChannels(path.join(basePath, "img_rgb_media_canais.pgm"));
+// Atividade #7
+transformRgbToAverageChannels(path.join(basePath, "img_rgb_media_canais.ppm"));
+
+// Atividade #8
+// Separado em 'Red' resto 0
+transformSeparateRgbChannel(path.join(basePath, "img_rgb_separado_r.ppm"), 0)
+// Separado em 'Green' resto 0
+transformSeparateRgbChannel(path.join(basePath, "img_rgb_separado_g.ppm"), 1)
+// Separado em 'Blue' resto 0
+transformSeparateRgbChannel(path.join(basePath, "img_rgb_separado_b.ppm"), 2)
+
+// Separado em 'Red' resto 255
+transformSeparateRgbChannel(path.join(basePath, "img_rgb_separado_r_max_255.ppm"), 0, 255)
+// Separado em 'Green' resto 255
+transformSeparateRgbChannel(path.join(basePath, "img_rgb_separado_g_max_255.ppm"), 1, 255)
+// Separado em 'Blue' resto 255
+transformSeparateRgbChannel(path.join(basePath, "img_rgb_separado_b_max_255.ppm"), 2, 255)
+
