@@ -59,8 +59,7 @@ export const transformRgbToGrayscale = (outDir: string) => {
   const result = initMatrix(image.width);
   for (let i = 0; i < image.width; i++) {
     for (let x = 0; x < image.height * 3; x += 3) {
-      const sumPixels =
-        image.pixels[i][x] + image.pixels[i][x + 1] + image.pixels[i][x + 2];
+      const sumPixels = image.pixels[i][x] + image.pixels[i][x + 1] + image.pixels[i][x + 2];
       result[i][x / 3] = Math.floor(sumPixels / 3);
     }
   }
@@ -84,8 +83,7 @@ export const transformRgbToAverageChannels = (outDir: string) => {
   const result = initMatrix(image.width);
   for (let i = 0; i < image.width; i++) {
     for (let x = 0; x < image.height * 3; x += 3) {
-      const sumPixels =
-        image.pixels[i][x] + image.pixels[i][x + 1] + image.pixels[i][x + 2];
+      const sumPixels = image.pixels[i][x] + image.pixels[i][x + 1] + image.pixels[i][x + 2];
       const averagePixel = Math.floor(sumPixels / 3);
       result[i][x] = averagePixel;
       result[i][x + 1] = averagePixel;

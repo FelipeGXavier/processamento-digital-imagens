@@ -8,6 +8,24 @@ export const initMatrix = (row: number): number[][] => {
     return result;
 };
 
+export const getImageHeader = (image: number[][], rgb: boolean) => {
+  const maxValue = maxValueMatrix(image);
+  let id = rgb ? 'P3' : 'P2';
+  return `${id}\n${image.length} ${image[0].length}\n${maxValue}\n`;
+}
+
+export const writeImageToFile = (image: number[][], outDir: string, rgb: boolean) => {
+  let outImageString = "";
+  outImageString = outImageString.concat(getImageHeader(image, rgb));
+  for (let i = 0; i < image.length; i++) {
+    for (let x = 0; x < image[0].length; x++) {
+      outImageString = outImageString.concat(image[i][x].toString() + " ");
+    }
+    outImageString = outImageString.concat("\n");
+  }
+  fs.writeFileSync(outDir, outImageString);
+}
+
 export const parseImage = (dir: string, rgb: boolean = false) => {
     const image = fs.readFileSync(dir).toString();
     const content = image.split("\n");
@@ -43,4 +61,14 @@ export const maxValueMatrix = (n: number[][]) => {
       }
     }
     return max;
+}
+
+export const minValueMatrix = (n: number[][]) => {
+  let min = n[0][0];
+  for (let i = 0; i < n.length; i++) {
+    if (Math.min.apply(Math, n[i]) < min) {
+      min = Math.min.apply(Math, n[i]);
+    }
+  }
+  return min;
 }
