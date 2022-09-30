@@ -60,3 +60,38 @@ export const hightlightByHistogram = (inDir: string, outDir: string, rgb: boolea
   }
   writeImageToFile(result, outDir, rgb);
 };
+
+export const hightlightByHistogramEqualization = (inDir: string, outDir: string) => {
+  const image = parseImage(inDir);
+  const values = image.pixels.flat();
+  const histogramValues: { [key: string] : number } = {};
+  const mn = image.width * image.height;
+  for (let i = 0; i < values.length; i++) {
+    if (!histogramValues[values[i].toString()]) {
+      histogramValues[values[i].toString()] = 0;
+    }
+    histogramValues[values[i].toString()]++;
+  }
+
+  for (const key in histogramValues) {
+    histogramValues[key] = histogramValues[key]/mn;
+  }
+
+  const accumlationSum = (pixel: number) => {
+    let sum = 0;
+    for (let i = 0 ; i <= pixel; i++) {
+      if (histogramValues[i.toString()]) {
+        sum += histogramValues[i.toString()];
+      }
+    }
+    return Math.floor(255 * sum);
+  }
+
+  const result = initMatrix(image.width);
+  for (let i = 0; i < image.width; i++) {
+    for (let x = 0; x < (false ? image.height * 3 : image.height); x++) {
+      result[i][x] = accumlationSum(image.pixels[i][x]);
+    }
+  }
+  writeImageToFile(result, outDir, false);
+}

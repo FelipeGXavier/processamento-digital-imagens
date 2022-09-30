@@ -11,7 +11,7 @@ export const initMatrix = (row: number): number[][] => {
 export const getImageHeader = (image: number[][], rgb: boolean) => {
   const maxValue = maxValueMatrix(image);
   let id = rgb ? 'P3' : 'P2';
-  return `${id}\n${image.length} ${image[0].length}\n${maxValue}\n`;
+  return `${id}\n${image.length} ${rgb ? image[0].length/3 : image[0].length}\n${maxValue}\n`;
 }
 
 export const writeImageToFile = (image: number[][], outDir: string, rgb: boolean) => {
