@@ -95,3 +95,32 @@ export const hightlightByHistogramEqualization = (inDir: string, outDir: string)
   }
   writeImageToFile(result, outDir, false);
 }
+
+export const rotateImage = (inDir: string, outDir: string, rotation: 90 | 180, rgb = false) => {
+  let image = parseImage(inDir);
+  if (rgb) {
+    image = parseImage(inDir, true);
+  }
+  let result = initMatrix(rgb ? image.width * 3 : image.width);
+  const n = image.width;
+  if (rotation == 90) {
+    for (let i=0; i<image.width; i++) {
+      for (let j=0;j< (rgb ? image.height * 3 : image.height); j++) {
+        result[j][n-1-i] = image.pixels[i][j];
+      }
+    }
+  } else {
+    const w = image.pixels[0].length;
+    const h = image.pixels.length;
+    let b = new Array(h);
+    for (let y=0; y<h; y++) {
+      let n = h-1-y;
+      b[n] = new Array(w);
+      for (let x=0; x<w; x++) {
+        b[n][w-1-x] = image.pixels[y][x];
+      }
+    }
+    result = b;
+  }
+  writeImageToFile(result, outDir, rgb);
+}
