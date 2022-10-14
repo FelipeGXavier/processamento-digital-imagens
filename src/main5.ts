@@ -1,4 +1,9 @@
-import { ImageOp, rotateImage, imageOperation, imageOperationWithArea } from "./maskImage.service";
+import {
+  ImageOp,
+  rotateImage,
+  imageOperation,
+  imageOperationWithArea,
+} from "./maskImage.service";
 import path from "path";
 import { rotate } from "./transformImageLib";
 
@@ -9,7 +14,7 @@ const basePath = path.join(__dirname, "..", "bin");
 rotateImage(
   path.join(basePath, "in/", "Entrada_EscalaCinza.pgm"),
   path.join(basePath, "Entrada_EscalaCinza_90r.pgm"),
-  90,
+  90
 );
 // 180º
 rotate("Fig4.ppm", "Fig4_180r.ppm", 180, true);
@@ -23,13 +28,14 @@ imageOperation(
   ImageOp.Add,
   true
 );
+
 imageOperationWithArea(
   path.join(basePath, "in/", "Img01.ppm"),
   path.join(basePath, "in/", "Img02.ppm"),
-  path.join(basePath, "Teste.ppm"),
+  path.join(basePath, "Saida_Imagem_adicao_area.ppm"),
   ImageOp.Add,
   500,
-  {height: 1000, width: 1000},
+  { height: 1000, width: 1000 },
   true
 );
 
@@ -46,10 +52,9 @@ imageOperation(
 imageOperationWithArea(
   path.join(basePath, "in/", "Img01.ppm"),
   path.join(basePath, "in/", "Img02.ppm"),
-  path.join(basePath, "Teste.ppm"),
+  path.join(basePath, "Saida_Imagem_subtracao_area.ppm"),
   ImageOp.Sub,
   500,
-  {height: 1000, width: 1000},
+  { height: 1000, width: 1000 },
   true
 );
-
