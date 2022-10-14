@@ -1,4 +1,10 @@
-import { initMatrix, parseImage, minValueMatrix, maxValueMatrix, getImageHeader, writeImageToFile } from './util';
+import {
+  initMatrix,
+  parseImage,
+  minValueMatrix,
+  maxValueMatrix,
+  writeImageToFile,
+} from "./util";
 import fs from "fs";
 
 export const getHistogramPlotValues = (
@@ -37,7 +43,11 @@ export const getHistogramPlotValues = (
   fs.writeFileSync(outDir, outValues);
 };
 
-export const hightlightByHistogram = (inDir: string, outDir: string, rgb: boolean = false) => {
+export const hightlightByHistogram = (
+  inDir: string,
+  outDir: string,
+  rgb: boolean = false
+) => {
   let image = parseImage(inDir);
   if (rgb) {
     image = parseImage(inDir, true);
@@ -46,7 +56,7 @@ export const hightlightByHistogram = (inDir: string, outDir: string, rgb: boolea
   const maxValue = maxValueMatrix(image.pixels);
 
   const coefA = 255 / (maxValue - minValue);
-  const coefB = -coefA * minValue;  
+  const coefB = -coefA * minValue;
 
   const histogramEq = (x: number) => {
     return Math.ceil(coefA * x + coefB);
@@ -61,10 +71,13 @@ export const hightlightByHistogram = (inDir: string, outDir: string, rgb: boolea
   writeImageToFile(result, outDir, rgb);
 };
 
-export const hightlightByHistogramEqualization = (inDir: string, outDir: string) => {
+export const hightlightByHistogramEqualization = (
+  inDir: string,
+  outDir: string
+) => {
   const image = parseImage(inDir);
   const values = image.pixels.flat();
-  const histogramValues: { [key: string] : number } = {};
+  const histogramValues: { [key: string]: number } = {};
   const mn = image.width * image.height;
   for (let i = 0; i < values.length; i++) {
     if (!histogramValues[values[i].toString()]) {
@@ -74,18 +87,18 @@ export const hightlightByHistogramEqualization = (inDir: string, outDir: string)
   }
 
   for (const key in histogramValues) {
-    histogramValues[key] = histogramValues[key]/mn;
+    histogramValues[key] = histogramValues[key] / mn;
   }
 
   const accumlationSum = (pixel: number) => {
     let sum = 0;
-    for (let i = 0 ; i <= pixel; i++) {
+    for (let i = 0; i <= pixel; i++) {
       if (histogramValues[i.toString()]) {
         sum += histogramValues[i.toString()];
       }
     }
     return Math.floor(255 * sum);
-  }
+  };
 
   const result = initMatrix(image.width);
   for (let i = 0; i < image.width; i++) {
@@ -94,9 +107,14 @@ export const hightlightByHistogramEqualization = (inDir: string, outDir: string)
     }
   }
   writeImageToFile(result, outDir, false);
-}
+};
 
-export const rotateImage = (inDir: string, outDir: string, rotation: 90 | 180, rgb = false) => {
+export const rotateImage = (
+  inDir: string,
+  outDir: string,
+  rotation: 90 | 180,
+  rgb = false
+) => {
   let image = parseImage(inDir);
   if (rgb) {
     image = parseImage(inDir, true);
@@ -104,23 +122,71 @@ export const rotateImage = (inDir: string, outDir: string, rotation: 90 | 180, r
   let result = initMatrix(rgb ? image.width * 3 : image.width);
   const n = image.width;
   if (rotation == 90) {
-    for (let i=0; i<image.width; i++) {
-      for (let j=0;j< (rgb ? image.height * 3 : image.height); j++) {
-        result[j][n-1-i] = image.pixels[i][j];
+    for (let i = 0; i < image.width; i++) {
+      for (let j = 0; j < (rgb ? image.height * 3 : image.height); j++) {
+        result[j][n - 1 - i] = image.pixels[i][j];
       }
     }
   } else {
     const w = image.pixels[0].length;
     const h = image.pixels.length;
     let b = new Array(h);
-    for (let y=0; y<h; y++) {
-      let n = h-1-y;
+    for (let y = 0; y < h; y++) {
+      let n = h - 1 - y;
       b[n] = new Array(w);
-      for (let x=0; x<w; x++) {
-        b[n][w-1-x] = image.pixels[y][x];
+      for (let x = 0; x < w; x++) {
+        b[n][w - 1 - x] = image.pixels[y][x];
       }
     }
     result = b;
   }
   writeImageToFile(result, outDir, rgb);
+};
+
+export enum ImageOp {
+  Add,
+  Sub,
 }
+
+export const imageOperation = (
+  baseImageDir: string,
+  otherImageDir: string,
+  outDir: string,
+  op: ImageOp,
+  rgb: boolean = false
+) => {
+  const baseImage = parseImage(baseImageDir, true);
+  const otherImage = parseImage(otherImageDir, true);
+
+  if (
+    baseImage.width != otherImage.width ||
+    baseImage.height != otherImage.height
+  ) {
+    throw new Error("Images must have same width");
+  }
+
+  let result = initMatrix(rgb ? baseImage.width * 3 : baseImage.width);
+  for (let i = 0; i < baseImage.pixels.length; i++) {
+    for (let j = 0; j < baseImage.pixels[0].length; j++) {
+      let rawValue = baseImage.pixels[i][j] - otherImage.pixels[i][j];
+      if (op == ImageOp.Add) {
+        rawValue = baseImage.pixels[i][j] + otherImage.pixels[i][j];
+      }
+      if (rawValue < 0) {
+        rawValue = 0;
+      } else if (rawValue > 255) {
+        rawValue = 255;
+      }
+      result[i][j] = rawValue;
+    }
+  }
+  let outImageString = "";
+  outImageString = outImageString.concat(`P3\n2560 1080\n255\n`);
+  for (let i = 0; i < result.length; i++) {
+    for (let x = 0; x < result[i].length; x++) {
+      outImageString = outImageString.concat(result[i][x].toString() + " ");
+    }
+    outImageString = outImageString.concat("\n");
+  }
+  fs.writeFileSync(outDir, outImageString);
+};
