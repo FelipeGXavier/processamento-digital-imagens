@@ -157,27 +157,17 @@ export const imageOperation = (
 ) => {
   const baseImage = parseImage(baseImageDir, true);
   const otherImage = parseImage(otherImageDir, true);
-
   if (
     baseImage.width != otherImage.width ||
     baseImage.height != otherImage.height
   ) {
     throw new Error("Images must have same width");
   }
-
   let result = initMatrix(rgb ? baseImage.width * 3 : baseImage.width);
   for (let i = 0; i < baseImage.pixels.length; i++) {
     for (let j = 0; j < baseImage.pixels[0].length; j++) {
-      let rawValue = baseImage.pixels[i][j] - otherImage.pixels[i][j];
-      if (op == ImageOp.Add) {
-        rawValue = baseImage.pixels[i][j] + otherImage.pixels[i][j];
-      }
-      if (rawValue < 0) {
-        rawValue = 0;
-      } else if (rawValue > 255) {
-        rawValue = 255;
-      }
-      result[i][j] = rawValue;
+      const value = pixelOpTruncate(op, baseImage.pixels[i][j], otherImage.pixels[i][j])
+      result[i][j] = value;  
     }
   }
   let outImageString = "";
@@ -190,3 +180,59 @@ export const imageOperation = (
   }
   fs.writeFileSync(outDir, outImageString);
 };
+
+export const imageOperationWithArea = (
+  baseImageDir: string,
+  otherImageDir: string,
+  outDir: string,
+  op: ImageOp,
+  start: number,
+  values: {width: number, height: number},
+  rgb: boolean = false
+) => {
+  const baseImage = parseImage(baseImageDir, true);
+  const otherImage = parseImage(otherImageDir, true);
+  let result = initMatrix(rgb ? baseImage.width * 3 : baseImage.width);
+  const fitInInterestArea = (i: number, j: number) => {
+    /*start ~ start + width
+    start ~ start + height
+    start + height ~ start + width
+    start + width ~ start + height*/
+    return i >= start 
+            && i < start + values.width 
+            && j >= start 
+            && j < start + values.height
+  }
+  for (let i = 0; i < baseImage.pixels.length; i++) {
+    for (let j = 0; j < baseImage.pixels[0].length; j++) {
+      if (fitInInterestArea(i, j)) {
+        const value = pixelOpTruncate(op, baseImage.pixels[i][j], otherImage.pixels[i][j])
+        result[i][j] = value;  
+      } else {
+        result[i][j] = baseImage.pixels[i][j];  
+      }
+    }
+  }
+  let outImageString = "";
+  outImageString = outImageString.concat(`P3\n2560 1080\n255\n`);
+  for (let i = 0; i < result.length; i++) {
+    for (let x = 0; x < result[i].length; x++) {
+      outImageString = outImageString.concat(result[i][x].toString() + " ");
+    }
+    outImageString = outImageString.concat("\n");
+  }
+  fs.writeFileSync(outDir, outImageString);
+};
+
+const pixelOpTruncate = (op: ImageOp, pixel1: number, pixel2:number) => {
+  let value = pixel1 - pixel2;
+  if (op == ImageOp.Add) {
+    value = pixel1 + pixel2;
+  }
+  if (value < 0) {
+    value = 0;
+  } else if (value > 255) {
+    value = 255;
+  }
+  return value;
+}

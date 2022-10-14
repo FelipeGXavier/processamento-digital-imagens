@@ -46,3 +46,28 @@ export const resize = async (
   }
   fs.unlinkSync(tempDir);
 };
+
+export const rotate = async (
+  inputFileName: string,
+  outputFilename: string,
+  degree: 90 | 180,
+  rgba: boolean = false
+) => {
+  const inputDir = path.join(__dirname, "..", "/bin/in", inputFileName);
+  const tempDir = path.join(
+    __dirname,
+    "..",
+    "/tmp",
+    `/temp__img_${crypto.randomUUID()}.png`
+  );
+  const outputDir = path.join(__dirname, "..", "/bin", outputFilename);
+  await command(`convert ${inputDir} -rotate ${degree} ${tempDir}`);
+  if (!rgba) {
+    await command(
+      `convert ${tempDir} -colorspace gray -compress none -depth 8 ${outputDir}`
+    );
+  } else {
+    await command(`convert ${tempDir} -compress none ${outputDir}`);
+  }
+  fs.unlinkSync(tempDir);
+};
