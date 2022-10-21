@@ -6,6 +6,7 @@ import {
   writeImageToFile,
 } from "./util";
 import fs from "fs";
+import path from "path";
 
 export const getHistogramPlotValues = (
   inDir: string,
@@ -223,6 +224,67 @@ export const imageOperationWithArea = (
   }
   fs.writeFileSync(outDir, outImageString);
 };
+
+export const eightBitPlaneImage = (filename: string, inDir: string, outDir: string) => {
+  const baseImage = parseImage(inDir);
+  
+  let bitPlane1 = initMatrix(baseImage.width); 
+  let bitPlane2 = initMatrix(baseImage.width); 
+  let bitPlane3 = initMatrix(baseImage.width); 
+  let bitPlane4 = initMatrix(baseImage.width); 
+  let bitPlane5 = initMatrix(baseImage.width); 
+  let bitPlane6 = initMatrix(baseImage.width); 
+  let bitPlane7 = initMatrix(baseImage.width); 
+  let bitPlane8 = initMatrix(baseImage.width); 
+
+  const getPixelValueFromBit = (binary: string) => {
+    return parseInt(binary) == 0 ? 0 : 255;
+  }
+
+  for (let i = 0; i < baseImage.pixels.length; i++) {
+    for (let j = 0; j < baseImage.pixels[0].length; j++) {
+      const pixelInBinary = baseImage.pixels[i][j]
+                              .toString(2)
+                              .padStart(8, '0')
+                              .split("")
+      bitPlane1[i][j] = getPixelValueFromBit(pixelInBinary[0]);
+      bitPlane2[i][j] = getPixelValueFromBit(pixelInBinary[1]);
+      bitPlane3[i][j] = getPixelValueFromBit(pixelInBinary[2]);
+      bitPlane4[i][j] = getPixelValueFromBit(pixelInBinary[3]);
+      bitPlane5[i][j] = getPixelValueFromBit(pixelInBinary[4]);
+      bitPlane6[i][j] = getPixelValueFromBit(pixelInBinary[5]);
+      bitPlane7[i][j] = getPixelValueFromBit(pixelInBinary[6]);
+      bitPlane8[i][j] = getPixelValueFromBit(pixelInBinary[7]);
+    }
+  }
+  writeImageToFile(bitPlane1, path.join(outDir, filename + "_1.pgm"), false);
+  writeImageToFile(bitPlane2, path.join(outDir, filename + "_2.pgm"), false);
+  writeImageToFile(bitPlane3, path.join(outDir, filename + "_3.pgm"), false);
+  writeImageToFile(bitPlane4, path.join(outDir, filename + "_4.pgm"), false);
+  writeImageToFile(bitPlane5, path.join(outDir, filename + "_5.pgm"), false);
+  writeImageToFile(bitPlane6, path.join(outDir, filename + "_6.pgm"), false);
+  writeImageToFile(bitPlane7, path.join(outDir, filename + "_7.pgm"), false);
+  writeImageToFile(bitPlane8, path.join(outDir, filename + "_8.pgm"), false);
+}
+
+export const threeBitPlaneImage = (inDir: string, outDir: string) => {
+  const baseImage = parseImage(inDir);
+  
+  let result = initMatrix(baseImage.width); 
+
+  for (let i = 0; i < baseImage.pixels.length; i++) {
+    for (let j = 0; j < baseImage.pixels[0].length; j++) {
+      const pixelInBinary = baseImage.pixels[i][j]
+                              .toString(2)
+                              .padStart(8, '0')
+      const msb3 = pixelInBinary.substring(0, 4);
+      result[i][j] = parseInt(msb3, 2);
+    }
+  }
+
+  writeImageToFile(result, outDir, false);
+  
+}
 
 const pixelOpTruncate = (op: ImageOp, pixel1: number, pixel2:number) => {
   let value = pixel1 - pixel2;
