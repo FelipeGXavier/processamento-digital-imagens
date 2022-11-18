@@ -23,12 +23,14 @@ export const writeImageToFile = (
 ) => {
   let outImageString = "";
   outImageString = outImageString.concat(getImageHeader(image, rgb));
+
   for (let i = 0; i < image.length; i++) {
     for (let x = 0; x < image[0].length; x++) {
       outImageString = outImageString.concat(image[i][x].toString() + " ");
     }
     outImageString = outImageString.concat("\n");
   }
+  console.log(outDir);
   fs.writeFileSync(outDir, outImageString);
 };
 
